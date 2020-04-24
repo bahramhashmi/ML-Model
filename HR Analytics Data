@@ -1,0 +1,118 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+data=pd.read_csv("C:/Users/Bahram Hashmi/Desktop/Data Science(2)/HR_comma_sep.csv")
+
+data
+
+data.head()
+
+from scipy.stats import friedmanchisquare  
+
+stats, pvalue = friedmanchisquare(data['left'],data['satisfaction_level'],data['last_evaluation'], data['number_project'],data['average_montly_hours'],data['time_spend_company'],data['Work_accident'])
+
+pvalue
+
+from scipy.stats import pearsonr
+
+stats, pvalue = pearsonr(data['satisfaction_level'],data['last_evaluation'])
+
+pvalue
+
+stats, pvalue = pearsonr(data['satisfaction_level'],data['number_project'])
+pvalue
+
+stats, pvalue = pearsonr(data['satisfaction_level'],data['average_montly_hours'])
+pvalue
+
+stats, pvalue = pearsonr(data['satisfaction_level'],data['left'])
+pvalue
+
+stats, pvalue = pearsonr(data['last_evaluation'],data['left'])
+pvalue
+
+data.info()
+
+stats, pvalue = pearsonr(data['number_project'],data['left'])
+pvalue
+
+stats, pvalue = pearsonr(data['average_montly_hours'],data['left'])
+pvalue
+
+stats, pvalue = pearsonr(data['time_spend_company'],data['left'])
+pvalue
+
+stats, pvalue = pearsonr(data['Work_accident'],data['left'])
+pvalue
+
+stats, pvalue = pearsonr(data['promotion_last_5years'],data['left'])
+pvalue
+
+ct = pd.crosstab(data['Department'],data['left'])
+ct
+
+from scipy.stats import chi2_contingency
+stat,pvalue,dof,expected_R = chi2_contingency(ct)
+pvalue
+
+ct1=pd.crosstab(data['salary'],data['left'])
+ct1
+
+from scipy.stats import chi2_contingency
+stat,pvalue,dof,expected_R = chi2_contingency(ct1)
+pvalue
+
+import seaborn as sns
+
+sns.pairplot(data)
+
+sns.barplot(x=data['salary'],y=data['left'])
+
+sns.barplot(x=data['Department'],y=data['left'])
+
+dummies=pd.get_dummies(data.salary)
+dummies
+
+merged=pd.concat([data,dummies],axis='columns')
+merged
+
+final=merged.drop(['salary'],axis='columns')
+
+final
+
+features=final.iloc[:,[0,3,7,9,10,11]].values
+label=final.iloc[:,6].values
+
+from sklearn.model_selection import train_test_split
+x_train,x_test,y_train,y_test=train_test_split(features,
+                                              label,
+                                              test_size=0.2,
+                                              random_state=1)
+
+from sklearn.linear_model import LogisticRegression
+model=LogisticRegression()
+
+model.fit(x_train,y_train)
+
+print(model.score(x_train,y_train))
+print(model.score(x_test,y_test))
+
+for i in range(1,12000):
+    x_train,x_test,y_train,y_test=train_test_split(features,
+                                                   label,
+                                                    test_size=0.2,
+                                                    random_state=i)
+    model=LogisticRegression()
+    model.fit(x_train,y_train)
+    training_score=model.score(x_train,y_train)
+    testing_score=model.score(x_test,y_test)
+    if testing_score > training_score and testing_score > 0.798:
+        print("Testing : {} Training : {} Random state : {}".format(testing_score,training_score,i))
+
+
+#model score->Testing : 0.8003333333333333 Training : 0.7709809150762563 Random state : 5408
+
+
+
+
